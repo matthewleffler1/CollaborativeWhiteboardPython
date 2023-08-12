@@ -2,13 +2,18 @@
 <html>
 <head>
     <title>Collaborative Whiteboard</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/styles.css') }}">
 </head>
 <body>
-    <canvas id="whiteboard" width="800" height="600"></canvas>
+    <div class="flex-container">
+        <canvas id="whiteboard"></canvas>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script>
         const canvas = document.getElementById('whiteboard');
+        var rect = canvas.parentNode.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
         const ctx = canvas.getContext('2d');
         let drawing = false;
 

@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "collaborativewhiteboardpython"
+version = "0.1.0"
+description = "Collaborative Whiteboard app with Flask Backend"
+authors = ["Kyle Bascomb <kylebascomb@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+flask = "^2.3.2"
+flask-socketio = "^5.3.5"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+black = "^23.7.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

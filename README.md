@@ -13,7 +13,9 @@ You can install poetry using pip with the following command:
 #### Running the program in Poetry
 To enable a shell with this virtual enviroment, run the following command in the directory with the pyproject.toml file ``poetry shell``
 
-Once you are in the shell, you can run any of your project files inside the virtual environment. If you are not in the shell, you can instead run the following command to run something as a one-off: poetry run command
+Once you are in the shell, you can install the necessary modules for the project using the following command: ```poetry install```.
+
+Once the necessary modules are installed, you can run any of your project files inside the virtual environment. If you are not in the shell, you can instead run the following command to run something as a one-off: ```poetry run (command)``
 
 for example, if you want to run main.py: ``poetry run python main.py``
 

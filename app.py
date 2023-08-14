@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 # Store drawing data temporarily (in-memory) - replace with a database for a production app
 drawings = []
@@ -9,15 +11,14 @@ drawings = []
 def index():
     return render_template('index.html')
 
-@app.route('/draw', methods=['POST'])
-def draw():
-    data = request.json
+@socketio.on('draw')
+def draw(data):
     drawings.append(data)
-    return jsonify(success=True)
+    emit('drawing', data, broadcast=True)
 
-@app.route('/get_drawings', methods=['GET'])
+@app.route('/get_drawings')
 def get_drawings():
-    return jsonify(drawings)
+    return {'drawings': drawings}
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=True)

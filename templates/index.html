@@ -40,6 +40,8 @@
             if(e.keyCode === 82)
             {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // Notify other sockets to clear the drawing
+                socket.emit('clear');
             }
         }
 

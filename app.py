@@ -16,6 +16,11 @@ def draw(data):
     drawings.append(data)
     emit('drawing', data, broadcast=True)
 
+@socketio.on('clear')
+def clear():
+    drawings.clear()  # Clear the drawings list
+    emit('cleared', broadcast=True)
+
 @app.route('/get_drawings')
 def get_drawings():
     return {'drawings': drawings}

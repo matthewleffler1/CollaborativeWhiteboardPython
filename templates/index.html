@@ -26,6 +26,7 @@
 
 
         function startDrawing(e) {
+            ctx.moveTo(e.clientX, e.clientY);
             drawing = true;
             draw(e);
         }

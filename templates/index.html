@@ -34,6 +34,7 @@
         function stopDrawing() {
             drawing = false;
             ctx.beginPath();
+            socket.emit("stop_drawing");
         }
 
         function clearCanvas(e) {
@@ -47,7 +48,6 @@
 
         function draw(e) {
             if (!drawing) return;
-
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
             ctx.strokeStyle = 'black';
@@ -77,21 +77,27 @@
             ctx.moveTo(data.x, data.y);
         });
 
-        // Retrieve existing drawings from the server
-        fetch('/get_drawings')
-            .then(response => response.json())
-            .then(data => {
-                data.drawings.forEach(d => {
-                    ctx.lineWidth = 2;
-                    ctx.lineCap = 'round';
-                    ctx.strokeStyle = 'black';
+        socket.on('stop_drawing', (data) => {
+            ctx.beginPath();
+        });
 
-                    ctx.lineTo(d.x, d.y);
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.moveTo(d.x, d.y);
-                });
-            });
+        // Retrieve existing drawings from the server
+        // fetch('/get_drawings')
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         data.drawings.forEach(d => {
+
+        //                 ctx.lineWidth = 2;
+        //                 ctx.lineCap = 'round';
+        //                 ctx.strokeStyle = 'black';
+
+        //                 ctx.lineTo(d.x, d.y);
+        //                 ctx.stroke();
+        //                 ctx.beginPath();
+        //                 ctx.moveTo(d.x, d.y);
+        //                 count = count + 1;
+        //         });
+        //     });
     </script>
 </body>
 </html>

@@ -16,6 +16,10 @@ def draw(data):
     drawings.append(data)
     emit('drawing', data, broadcast=True)
 
+@socketio.on('stop_drawing')
+def stop_drawing():
+    emit('stop_drawing', broadcast=True)
+
 @socketio.on('clear')
 def clear():
     drawings.clear()  # Clear the drawings list

@@ -18,6 +18,13 @@
         let drawing = false;
 
         const socket = io.connect('http://' + document.domain + ':' + location.port);
+        let clientId;
+        socket.on('connect', () => {
+            clientId = socket.id; // an alphanumeric id...
+            socket.emit("client_connected", {
+                id: clientId,
+            });
+        });
 
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mouseup', stopDrawing);
@@ -28,22 +35,33 @@
         function startDrawing(e) {
             ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
             drawing = true;
+            socket.emit("start_drawing", {
+                x: e.clientX - canvas.offsetLeft,
+                y: e.clientY - canvas.offsetTop,
+                id: clientId
+            });
             draw(e);
         }
 
         function stopDrawing() {
             drawing = false;
             ctx.beginPath();
-            socket.emit("stop_drawing");
+            socket.emit("stop_drawing", {
+                id: clientId
+            });
         }
 
         function clearCanvas(e) {
             if(e.keyCode === 82)
             {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                clearAll();
                 // Notify other sockets to clear the drawing
                 socket.emit('clear');
             }
+        }
+
+        function clearAll(){
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
 
         function draw(e) {
@@ -61,6 +79,7 @@
             socket.emit('draw', {
                 x: e.clientX - canvas.offsetLeft,
                 y: e.clientY - canvas.offsetTop,
+                id: clientId
             });
         }
 
@@ -79,6 +98,11 @@
 
         socket.on('stop_drawing', (data) => {
             ctx.beginPath();
+        });
+
+        socket.on('cleared', (data) => {
+            console.log('test')
+            clearAll()
         });
 
         // Retrieve existing drawings from the server

@@ -1,5 +1,6 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
+import json
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -41,7 +42,7 @@ def clear():
 
 @app.route('/get_drawings')
 def get_drawings():
-    return {'drawings': drawings}
+    return json.dumps({'drawings': drawings})
 
 
 def add_client(client_id):

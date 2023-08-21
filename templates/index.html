@@ -105,23 +105,33 @@
             clearAll()
         });
 
-        // Retrieve existing drawings from the server
-        // fetch('/get_drawings')
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         data.drawings.forEach(d => {
+        //Retrieve existing drawings from the server
+        fetch('/get_drawings')
+            .then(response => response.json())
+            .then(data => {
+                for(id in data.drawings){
+                    if(data.drawings[id][0]){
+                        ctx.moveTo(data.drawings[id][0].x, data.drawings[id][0].y);
+                    }
+                    for(line in data.drawings[id]){
+                        if (line !=  0){
+                            if(data.drawings[id][0] === "start"){
+                                ctx.moveTo(data.drawings[id][line].x, data.drawings[id][line].y);
+                            } else{
+                                ctx.lineWidth = 2;
+                                ctx.lineCap = 'round';
+                                ctx.strokeStyle = 'black';
 
-        //                 ctx.lineWidth = 2;
-        //                 ctx.lineCap = 'round';
-        //                 ctx.strokeStyle = 'black';
-
-        //                 ctx.lineTo(d.x, d.y);
-        //                 ctx.stroke();
-        //                 ctx.beginPath();
-        //                 ctx.moveTo(d.x, d.y);
-        //                 count = count + 1;
-        //         });
-        //     });
+                                ctx.lineTo(data.drawings[id][line].x, data.drawings[id][line].y);
+                                ctx.stroke();
+                                ctx.beginPath();
+                                ctx.moveTo(data.drawings[id][line].x, data.drawings[id][line].y);
+                            }
+                            
+                        }
+                    }
+                }
+            });
     </script>
 </body>
 </html>

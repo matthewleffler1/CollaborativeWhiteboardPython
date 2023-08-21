@@ -18,6 +18,13 @@
         let drawing = false;
 
         const socket = io.connect('http://' + document.domain + ':' + location.port);
+        let clientId;
+        socket.on('connect', () => {
+            clientId = socket.id; // an alphanumeric id...
+            socket.emit("client_connected", {
+                id: clientId,
+            });
+        });
 
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mouseup', stopDrawing);
@@ -28,26 +35,37 @@
         function startDrawing(e) {
             ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
             drawing = true;
+            socket.emit("start_drawing", {
+                x: e.clientX - canvas.offsetLeft,
+                y: e.clientY - canvas.offsetTop,
+                id: clientId
+            });
             draw(e);
         }
 
         function stopDrawing() {
             drawing = false;
             ctx.beginPath();
+            socket.emit("stop_drawing", {
+                id: clientId
+            });
         }
 
         function clearCanvas(e) {
             if(e.keyCode === 82)
             {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                clearAll();
                 // Notify other sockets to clear the drawing
                 socket.emit('clear');
             }
         }
 
+        function clearAll(){
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
         function draw(e) {
             if (!drawing) return;
-
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
             ctx.strokeStyle = 'black';
@@ -61,11 +79,13 @@
             socket.emit('draw', {
                 x: e.clientX - canvas.offsetLeft,
                 y: e.clientY - canvas.offsetTop,
+                id: clientId
             });
         }
 
         // Listen for drawing data from the server
         socket.on('drawing', (data) => {
+            if (drawing) return;
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
             ctx.strokeStyle = 'black';
@@ -76,20 +96,41 @@
             ctx.moveTo(data.x, data.y);
         });
 
-        // Retrieve existing drawings from the server
+        socket.on('stop_drawing', (data) => {
+            ctx.beginPath();
+        });
+
+        socket.on('cleared', (data) => {
+            console.log('test')
+            clearAll()
+        });
+
+        //Retrieve existing drawings from the server
         fetch('/get_drawings')
             .then(response => response.json())
             .then(data => {
-                data.drawings.forEach(d => {
-                    ctx.lineWidth = 2;
-                    ctx.lineCap = 'round';
-                    ctx.strokeStyle = 'black';
+                for(id in data.drawings){
+                    if(data.drawings[id][0]){
+                        ctx.moveTo(data.drawings[id][0].x, data.drawings[id][0].y);
+                    }
+                    for(line in data.drawings[id]){
+                        if (line !=  0){
+                            if(data.drawings[id][0] === "start"){
+                                ctx.moveTo(data.drawings[id][line].x, data.drawings[id][line].y);
+                            } else{
+                                ctx.lineWidth = 2;
+                                ctx.lineCap = 'round';
+                                ctx.strokeStyle = 'black';
 
-                    ctx.lineTo(d.x, d.y);
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.moveTo(d.x, d.y);
-                });
+                                ctx.lineTo(data.drawings[id][line].x, data.drawings[id][line].y);
+                                ctx.stroke();
+                                ctx.beginPath();
+                                ctx.moveTo(data.drawings[id][line].x, data.drawings[id][line].y);
+                            }
+                            
+                        }
+                    }
+                }
             });
     </script>
 </body>

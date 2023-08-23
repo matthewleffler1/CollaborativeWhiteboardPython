@@ -117,7 +117,7 @@
                 
                 // check if the userContext exists yet. If so, move the canvas cursor to the last saved position for this user.
                 if(!userContext[data.id]){
-                    ctx.moveTo(data.x, data.y);
+                    ctx.beginPath();
                 } else{
                     ctx.moveTo(userContext[data.id][0], userContext[data.id][1]);
                 }

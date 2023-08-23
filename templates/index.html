@@ -50,7 +50,8 @@
             socket.emit("start_drawing", {
                 x: mouseX,
                 y: mouseY,
-                id: clientId
+                id: clientId,
+                color:ctx.strokeStyle
             });
             draw(e);
         }
@@ -95,7 +96,8 @@
             socket.emit('draw', {
                 x: mouseX,
                 y: mouseY,
-                id: clientId
+                id: clientId,
+                color:ctx.strokeStyle
             });
         }
 
@@ -136,7 +138,7 @@
                             } else{
                                 ctx.lineWidth = 2;
                                 ctx.lineCap = 'round';
-                                // ctx.strokeStyle = 'black';
+                                ctx.strokeStyle = data.drawings[id][line].color;
 
                                 ctx.lineTo(data.drawings[id][line].x, data.drawings[id][line].y);
                                 ctx.stroke();
@@ -150,11 +152,23 @@
             });
     </script>
 
-    <button onclick="ctx.strokeStyle = 'rgb(0,0,0)';">Black</button>
-    <button onclick="ctx.strokeStyle = 'rgb(255,0,0)';">Red</button>
-    <button onclick="ctx.strokeStyle = 'rgb(0,255,0)';">Green</button>
-    <button onclick="ctx.strokeStyle = 'rgb(0,0,255)';">Blue</button>
-    <button onclick="ctx.strokeStyle = 'rgb(245, 245, 220)';">Erase</button>
+    <div>
+        <button onclick="ctx.strokeStyle = 'rgb(0,0,0)';">Black</button>
+    </div>
+    <div>
+        <button onclick="ctx.strokeStyle = 'rgb(255,0,0)';">Red</button>
+    </div>
+    <div>
+        <button onclick="ctx.strokeStyle = 'rgb(0,255,0)';">Green</button>
+    </div>
+    <div>
+        <button onclick="ctx.strokeStyle = 'rgb(0,0,255)';">Blue</button>
+    </div>
+    <div>
+        <button onclick="ctx.strokeStyle = 'rgb(245, 245, 220)';">Erase</button>
+    </div>
+    
+    
 
 </body>
 </html>

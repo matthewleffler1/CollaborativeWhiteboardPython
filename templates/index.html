@@ -44,7 +44,6 @@
             var mouseX = getMousePosition(e).x;
             var mouseY = getMousePosition(e).y;
 
-
             ctx.moveTo(mouseX, mouseY);
             drawing = true;
             socket.emit("start_drawing", {

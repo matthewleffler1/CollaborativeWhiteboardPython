@@ -32,12 +32,23 @@
         window.addEventListener('keydown', clearCanvas);
 
 
+        function getMousePosition(e) {
+            var mouseX = e.offsetX * canvas.width / canvas.clientWidth | 0;
+            var mouseY = e.offsetY * canvas.height / canvas.clientHeight | 0;
+            return {x: mouseX, y: mouseY};
+        }
+
+
         function startDrawing(e) {
-            ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+            var mouseX = getMousePosition(e).x;
+            var mouseY = getMousePosition(e).y;
+
+
+            ctx.moveTo(mouseX, mouseY);
             drawing = true;
             socket.emit("start_drawing", {
-                x: e.clientX - canvas.offsetLeft,
-                y: e.clientY - canvas.offsetTop,
+                x: mouseX,
+                y: mouseY,
                 id: clientId
             });
             draw(e);
@@ -66,19 +77,23 @@
 
         function draw(e) {
             if (!drawing) return;
+
+            var mouseX = getMousePosition(e).x;
+            var mouseY = getMousePosition(e).y;
+
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
             ctx.strokeStyle = 'black';
 
-            ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+            ctx.lineTo(mouseX, mouseY);
             ctx.stroke();
             ctx.beginPath();
-            ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+            ctx.moveTo(mouseX, mouseY);
 
             // Emit drawing data through WebSocket
             socket.emit('draw', {
-                x: e.clientX - canvas.offsetLeft,
-                y: e.clientY - canvas.offsetTop,
+                x: mouseX,
+                y: mouseY,
                 id: clientId
             });
         }

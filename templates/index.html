@@ -15,6 +15,7 @@
         canvas.width = rect.width;
         canvas.height = rect.height;
         const ctx = canvas.getContext('2d');
+        ctx.strokeStyle = 'rgb(255,0,0)';
         let drawing = false;
 
         const socket = io.connect('http://' + document.domain + ':' + location.port);
@@ -43,13 +44,13 @@
             var mouseX = getMousePosition(e).x;
             var mouseY = getMousePosition(e).y;
 
-
             ctx.moveTo(mouseX, mouseY);
             drawing = true;
             socket.emit("start_drawing", {
                 x: mouseX,
                 y: mouseY,
-                id: clientId
+                id: clientId,
+                color:ctx.strokeStyle
             });
             draw(e);
         }
@@ -83,7 +84,7 @@
 
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
-            ctx.strokeStyle = 'black';
+            // ctx.strokeStyle = 'black';
 
             ctx.lineTo(mouseX, mouseY);
             ctx.stroke();
@@ -94,7 +95,8 @@
             socket.emit('draw', {
                 x: mouseX,
                 y: mouseY,
-                id: clientId
+                id: clientId,
+                color:ctx.strokeStyle
             });
         }
 
@@ -103,7 +105,7 @@
             if (drawing) return;
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
-            ctx.strokeStyle = 'black';
+            ctx.strokeStyle = data.color;
 
             ctx.lineTo(data.x, data.y);
             ctx.stroke();
@@ -135,7 +137,7 @@
                             } else{
                                 ctx.lineWidth = 2;
                                 ctx.lineCap = 'round';
-                                ctx.strokeStyle = 'black';
+                                ctx.strokeStyle = data.drawings[id][line].color;
 
                                 ctx.lineTo(data.drawings[id][line].x, data.drawings[id][line].y);
                                 ctx.stroke();
@@ -148,5 +150,24 @@
                 }
             });
     </script>
+
+    <div>
+        <button onclick="ctx.strokeStyle = 'rgb(0,0,0)';">Black</button>
+    </div>
+    <div>
+        <button onclick="ctx.strokeStyle = 'rgb(255,0,0)';">Red</button>
+    </div>
+    <div>
+        <button onclick="ctx.strokeStyle = 'rgb(0,255,0)';">Green</button>
+    </div>
+    <div>
+        <button onclick="ctx.strokeStyle = 'rgb(0,0,255)';">Blue</button>
+    </div>
+    <div>
+        <button onclick="ctx.strokeStyle = 'rgb(245, 245, 220)';">Erase</button>
+    </div>
+    
+    
+
 </body>
 </html>

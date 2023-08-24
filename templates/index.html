@@ -27,6 +27,9 @@
             });
         });
 
+        var userContext = {}
+        
+
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mouseup', stopDrawing);
         canvas.addEventListener('mousemove', draw);
@@ -45,6 +48,7 @@
             var mouseY = getMousePosition(e).y;
 
             ctx.moveTo(mouseX, mouseY);
+            userContext[clientId] = [mouseX, mouseY];
             drawing = true;
             socket.emit("start_drawing", {
                 x: mouseX,
@@ -85,11 +89,14 @@
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
             // ctx.strokeStyle = 'black';
-
+            
+            ctx.moveTo(userContext[clientId][0], userContext[clientId][1]);
             ctx.lineTo(mouseX, mouseY);
             ctx.stroke();
             ctx.beginPath();
             ctx.moveTo(mouseX, mouseY);
+            // set the user context for this client
+            userContext[clientId] = [mouseX, mouseY];
 
             // Emit drawing data through WebSocket
             socket.emit('draw', {
@@ -102,15 +109,25 @@
 
         // Listen for drawing data from the server
         socket.on('drawing', (data) => {
-            if (drawing) return;
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = data.color;
+            if(data.id != clientId){
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = data.color;
+                
+                // check if the userContext exists yet. If so, move the canvas cursor to the last saved position for this user.
+                if(!userContext[data.id]){
+                    ctx.beginPath();
+                } else{
+                    ctx.moveTo(userContext[data.id][0], userContext[data.id][1]);
+                }
 
-            ctx.lineTo(data.x, data.y);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(data.x, data.y);
+                ctx.lineTo(data.x, data.y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(data.x, data.y);
+                //save user context to the last position for this user.
+                userContext[data.id] = [data.x, data.y];
+            }
         });
 
         socket.on('stop_drawing', (data) => {

@@ -1,3 +1,16 @@
+.flex-container
+{
+    display: flex;
+    flex-direction: column;
+}
+
+input[type="color"] {
+	-webkit-appearance: none;
+	border: none;
+	width: auto;
+	height: 75px;
+}
+
 #whiteboard
 {
     border: 3px solid rgb(0, 0, 0);

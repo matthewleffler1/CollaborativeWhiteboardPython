@@ -5,9 +5,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/styles.css') }}">
 </head>
 <body>
-    <div class="flex-container">
+    <div id="left" style="float:left; margin-right: 5px;">
         <canvas id="whiteboard"></canvas>
     </div>
+    <!-- <div class="flex-container">
+        <canvas id="whiteboard"></canvas>
+    </div> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script>
         const canvas = document.getElementById('whiteboard');
@@ -15,7 +18,7 @@
         canvas.width = rect.width;
         canvas.height = rect.height;
         const ctx = canvas.getContext('2d');
-        ctx.strokeStyle = 'rgb(255,0,0)';
+        ctx.strokeStyle = 'rgb(0,0,0)';
         let drawing = false;
 
         const socket = io.connect('http://' + document.domain + ':' + location.port);
@@ -151,23 +154,17 @@
             });
     </script>
 
-    <div>
-        <button onclick="ctx.strokeStyle = 'rgb(0,0,0)';">Black</button>
+    <h1>Choose a color:</h1>
+    <div class="flex-container">
+        <script>
+            function getColor() {
+                var color = document.getElementById("mycolor").value;
+                ctx.strokeStyle = color;
+            }
+         </script>
+
+        <input type="color" value="#000000" id="mycolor" oninput="getColor()">
     </div>
-    <div>
-        <button onclick="ctx.strokeStyle = 'rgb(255,0,0)';">Red</button>
-    </div>
-    <div>
-        <button onclick="ctx.strokeStyle = 'rgb(0,255,0)';">Green</button>
-    </div>
-    <div>
-        <button onclick="ctx.strokeStyle = 'rgb(0,0,255)';">Blue</button>
-    </div>
-    <div>
-        <button onclick="ctx.strokeStyle = 'rgb(245, 245, 220)';">Erase</button>
-    </div>
-    
-    
 
 </body>
 </html>

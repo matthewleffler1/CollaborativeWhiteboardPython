@@ -25,7 +25,7 @@ def start_drawing(data):
 @socketio.on('stop_drawing')
 def stop_drawing(data):
     drawings[data['id']].append('stop')
-    emit('stop_drawing', broadcast=True)
+    emit('stop_drawing', data, broadcast=True)
     print(str(drawings))
 
 

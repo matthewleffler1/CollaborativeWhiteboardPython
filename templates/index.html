@@ -117,12 +117,15 @@
                 ctx.lineCap = 'round';
                 ctx.strokeStyle = data.color;
                 
-                // check if the userContext exists yet. If so, move the canvas cursor to the last saved position for this user.
-                if(!userContext[data.id]){
+                // check if the userContext exists yet. If so, move the canvas cursor to the last saved position for this user. Otherwise begin path
+                if(!userContext[data.id] || userContext[data.id] == stop){
                     ctx.beginPath();
                 } else{
+                    //if user exists but path is finished, to begin path instead
                     ctx.moveTo(userContext[data.id][0], userContext[data.id][1]);
                 }
+
+                
 
                 ctx.lineTo(data.x, data.y);
                 ctx.stroke();
@@ -134,7 +137,8 @@
         });
 
         socket.on('stop_drawing', (data) => {
-            ctx.beginPath();
+            //ctx.beginPath();
+            userContext[data.id] = 'stop';
         });
 
         socket.on('cleared', (data) => {

@@ -109,7 +109,6 @@
 
         // Listen for drawing data from the server
         socket.on('drawing', (data) => {
-            if (drawing) return;
             if(data.id != clientId){
                 ctx.lineWidth = 2;
                 ctx.lineCap = 'round';

@@ -23,6 +23,7 @@
 
         const standardLineWidth = 2;
         const standardLineCap = 'round';
+        const ENABLE_DRAW_LINES_LOCALLY = false;
 
         const socket = io.connect('http://' + document.domain + ':' + location.port);
         let clientId;
@@ -98,6 +99,15 @@
             ctx.lineCap = standardLineCap;
         }
 
+        function drawLinesLocally(x, y){
+            setStandardLineStyle();
+            
+            ctx.moveTo(userContext[clientId][0], userContext[clientId][1]);
+            drawLine(x, y);
+            // set the user context for this client
+            userContext[clientId] = [x, y];
+        }
+
 
         function draw(e) {
             if (!drawing) return;
@@ -105,13 +115,9 @@
             var mouseX = getMousePosition(e).x;
             var mouseY = getMousePosition(e).y;
 
-            setStandardLineStyle();
-            // ctx.strokeStyle = 'black';
-            
-            ctx.moveTo(userContext[clientId][0], userContext[clientId][1]);
-            drawLine(mouseX, mouseY);
-            // set the user context for this client
-            userContext[clientId] = [mouseX, mouseY];
+            if(ENABLE_DRAW_LINES_LOCALLY){
+                drawLinesLocally(mouseX, mouseY);
+            }
 
             // Emit drawing data through WebSocket
             socket.emit('draw', {
@@ -124,7 +130,7 @@
 
         // Listen for drawing data from the server
         socket.on('drawing', (data) => {
-            if(data.id != clientId){
+            if(!ENABLE_DRAW_LINES_LOCALLY || data.id != clientID){
                 setStandardLineStyle();
                 ctx.strokeStyle = data.color;
                 

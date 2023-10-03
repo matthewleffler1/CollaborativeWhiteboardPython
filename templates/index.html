@@ -21,6 +21,10 @@
         ctx.strokeStyle = 'rgb(0,0,0)';
         let drawing = false;
 
+        const standardLineWidth = 2;
+        const standardLineCap = 'round';
+        const ENABLE_DRAW_LINES_LOCALLY = false;
+
         const socket = io.connect('http://' + document.domain + ':' + location.port);
         let clientId;
         socket.on('connect', () => {
@@ -83,23 +87,37 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
 
+        function drawLine(x, y){
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        function setStandardLineStyle(){
+            ctx.lineWidth = standardLineWidth;
+            ctx.lineCap = standardLineCap;
+        }
+
+        function drawLinesLocally(x, y){
+            setStandardLineStyle();
+            
+            ctx.moveTo(userContext[clientId][0], userContext[clientId][1]);
+            drawLine(x, y);
+            // set the user context for this client
+            userContext[clientId] = [x, y];
+        }
+
+
         function draw(e) {
             if (!drawing) return;
 
             var mouseX = getMousePosition(e).x;
             var mouseY = getMousePosition(e).y;
 
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            // ctx.strokeStyle = 'black';
-            
-            ctx.moveTo(userContext[clientId][0], userContext[clientId][1]);
-            ctx.lineTo(mouseX, mouseY);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(mouseX, mouseY);
-            // set the user context for this client
-            userContext[clientId] = [mouseX, mouseY];
+            if(ENABLE_DRAW_LINES_LOCALLY){
+                drawLinesLocally(mouseX, mouseY);
+            }
 
             // Emit drawing data through WebSocket
             socket.emit('draw', {
@@ -112,9 +130,8 @@
 
         // Listen for drawing data from the server
         socket.on('drawing', (data) => {
-            if(data.id != clientId){
-                ctx.lineWidth = 2;
-                ctx.lineCap = 'round';
+            if(!ENABLE_DRAW_LINES_LOCALLY || data.id != clientID){
+                setStandardLineStyle();
                 ctx.strokeStyle = data.color;
                 
                 // check if the userContext exists yet. If so, move the canvas cursor to the last saved position for this user.
@@ -124,15 +141,14 @@
                     ctx.moveTo(userContext[data.id][0], userContext[data.id][1]);
                 }
 
-                ctx.lineTo(data.x, data.y);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(data.x, data.y);
+                drawLine(data.x, data.y);
                 //save user context to the last position for this user.
                 userContext[data.id] = [data.x, data.y];
             }
         });
 
+
+        
         socket.on('stop_drawing', (data) => {
             ctx.beginPath();
         });
@@ -151,18 +167,16 @@
                         ctx.moveTo(data.drawings[id][0].x, data.drawings[id][0].y);
                     }
                     for(line in data.drawings[id]){
+                        var lineX = data.drawings[id][line].x;
+                        var lineY = data.drawings[id][line].y;
                         if (line !=  0){
                             if(data.drawings[id][0] === "start"){
-                                ctx.moveTo(data.drawings[id][line].x, data.drawings[id][line].y);
+                                ctx.moveTo(lineX , lineY);
                             } else{
-                                ctx.lineWidth = 2;
-                                ctx.lineCap = 'round';
+                                setStandardLineStyle();
                                 ctx.strokeStyle = data.drawings[id][line].color;
-
-                                ctx.lineTo(data.drawings[id][line].x, data.drawings[id][line].y);
-                                ctx.stroke();
-                                ctx.beginPath();
-                                ctx.moveTo(data.drawings[id][line].x, data.drawings[id][line].y);
+                                
+                                drawLine(lineX, lineY);
                             }
                             
                         }
